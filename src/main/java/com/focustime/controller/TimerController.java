@@ -1,6 +1,7 @@
 package com.focustime.controller;
 
 import com.focustime.model.TimerModel;
+import com.focustime.model.CategoryModel;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -8,8 +9,10 @@ import javafx.scene.control.*;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.beans.binding.Bindings;
+import javafx.util.StringConverter;
 
 import java.net.URL;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class TimerController implements Initializable {
@@ -22,17 +25,25 @@ public class TimerController implements Initializable {
     @FXML private TextField timeInputField;
     @FXML private ProgressBar progressBar;
     
+    // Category components
+    @FXML private ComboBox<String> categoryComboBox;
+    @FXML private Button btnAddCategory;
+    @FXML private Button btnRemoveCategory;
+    
     private TimerModel timerModel;
+    private CategoryModel categoryModel;
     private MediaPlayer notificationSound;
     
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        // Initialize model
+        // Initialize models
         timerModel = new TimerModel();
+        categoryModel = new CategoryModel();
         timerModel.setDuration(25); // Default 25 minutes
         
-        // Setup spinner properly
+        // Setup components
         setupSpinner();
+        setupCategoryComboBox();
         
         // Bind UI to model properties
         setupBindings();
@@ -56,27 +67,80 @@ public class TimerController implements Initializable {
         customSpinner.setEditable(true);
     }
     
+    private void setupCategoryComboBox() {
+        // Bind ComboBox items to category model
+        categoryComboBox.setItems(categoryModel.getCategories());
+        
+        // Set initial selection
+        categoryComboBox.setValue(categoryModel.getSelectedCategory());
+        
+        // Bind selected category to model
+        categoryComboBox.valueProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null) {
+                categoryModel.setSelectedCategory(newVal);
+            }
+        });
+        
+        // Custom cell factory for better display
+        categoryComboBox.setCellFactory(listView -> new ListCell<String>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                } else {
+                    setText(item);
+                }
+            }
+        });
+        
+        // Custom string converter
+        categoryComboBox.setConverter(new StringConverter<String>() {
+            @Override
+            public String toString(String object) {
+                return object != null ? object : "";
+            }
+            
+            @Override
+            public String fromString(String string) {
+                return string;
+            }
+        });
+    }
+    
     private void setupBindings() {
         // Bind time display
         timeLabel.textProperty().bind(timerModel.timeDisplayProperty());
         
-        // Bind status label
+        // Bind status label with category info
         statusLabel.textProperty().bind(
             Bindings.createStringBinding(() -> {
+                String category = categoryModel.getSelectedCategory();
+                String categoryText = category != null ? " - " + category : "";
+                
                 if (timerModel.isRunning()) {
-                    return timerModel.isPaused() ? "Paused" : "Focusing...";
+                    return (timerModel.isPaused() ? "Paused" : "Focusing...") + categoryText;
                 } else {
-                    return timerModel.getRemainingSeconds() == timerModel.getTotalSeconds() 
+                    String baseStatus = timerModel.getRemainingSeconds() == timerModel.getTotalSeconds() 
                         ? "Ready to Focus" : "Session Stopped";
+                    return baseStatus + categoryText;
                 }
             }, timerModel.isRunningProperty(), timerModel.isPausedProperty(), 
-               timerModel.remainingSecondsProperty())
+               timerModel.remainingSecondsProperty(), categoryModel.selectedCategoryProperty())
         );
         
         // Bind button states
         btnStart.disableProperty().bind(timerModel.isRunningProperty().and(timerModel.isPausedProperty().not()));
         btnPause.disableProperty().bind(timerModel.isRunningProperty().not());
         btnStop.disableProperty().bind(timerModel.isRunningProperty().not());
+        
+        // Category button bindings
+        btnRemoveCategory.disableProperty().bind(
+            Bindings.createBooleanBinding(() -> 
+                categoryModel.getCategories().size() <= 1,
+                categoryModel.getCategories()
+            )
+        );
         
         // Bind progress bar
         progressBar.progressProperty().bind(
@@ -106,6 +170,58 @@ public class TimerController implements Initializable {
         }
     }
     
+    // Category Actions
+    @FXML
+    private void addCategory() {
+        TextInputDialog dialog = new TextInputDialog();
+        dialog.setTitle("Add New Category");
+        dialog.setHeaderText("Create a new focus category");
+        dialog.setContentText("Category name:");
+        
+        // Style the dialog
+        dialog.getDialogPane().getStylesheets().add(
+            getClass().getResource("/css/timer.css").toExternalForm()
+        );
+        
+        Optional<String> result = dialog.showAndWait();
+        result.ifPresent(categoryName -> {
+            if (categoryModel.addCategory(categoryName)) {
+                categoryComboBox.setValue(categoryName);
+                showInfoAlert("Success", "Category '" + categoryName + "' added successfully!");
+            } else {
+                showWarningAlert("Category Exists", "Category '" + categoryName + "' already exists or is invalid.");
+            }
+        });
+    }
+    
+    @FXML
+    private void removeCategory() {
+        String selectedCategory = categoryComboBox.getValue();
+        if (selectedCategory == null) {
+            showWarningAlert("No Selection", "Please select a category to remove.");
+            return;
+        }
+        
+        Alert confirmDialog = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmDialog.setTitle("Remove Category");
+        confirmDialog.setHeaderText("Are you sure?");
+        confirmDialog.setContentText("Remove category '" + selectedCategory + "'?");
+        
+        Optional<ButtonType> result = confirmDialog.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            if (categoryModel.removeCategory(selectedCategory)) {
+                // Select first available category
+                if (!categoryModel.getCategories().isEmpty()) {
+                    categoryComboBox.setValue(categoryModel.getCategories().get(0));
+                }
+                showInfoAlert("Success", "Category removed successfully!");
+            } else {
+                showWarningAlert("Cannot Remove", "Cannot remove the currently selected category or the last remaining category.");
+            }
+        }
+    }
+    
+    // Timer Duration Actions (existing methods)
     @FXML
     private void setDuration25() {
         if (!timerModel.isRunning()) {
@@ -135,8 +251,13 @@ public class TimerController implements Initializable {
         }
     }
     
+    // Timer Control Actions (existing methods)
     @FXML
     private void startTimer() {
+        // Log the session start with category (for future database integration)
+        String category = categoryModel.getSelectedCategory();
+        System.out.println("Starting timer session - Category: " + category + ", Duration: " + (timerModel.getTotalSeconds() / 60) + " minutes");
+        
         timerModel.start();
     }
     
@@ -173,6 +294,7 @@ public class TimerController implements Initializable {
         }
     }
     
+    // Helper methods (existing methods)
     private boolean parseAndSetTime(String timeStr) {
         try {
             String[] parts = timeStr.split(":");
@@ -200,11 +322,10 @@ public class TimerController implements Initializable {
             // Invalid format
         }
         
-        Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setTitle("Invalid Time Format");
-        alert.setHeaderText("Please enter time in HH:MM:SS or MM:SS format");
-        alert.setContentText("Example: 01:30:00 or 25:00\nMaximum: 03:00:00 (180 minutes)");
-        alert.showAndWait();
+        showWarningAlert("Invalid Time Format", 
+            "Please enter time in HH:MM:SS or MM:SS format\n" +
+            "Example: 01:30:00 or 25:00\n" +
+            "Maximum: 03:00:00 (180 minutes)");
         return false;
     }
     
@@ -213,12 +334,16 @@ public class TimerController implements Initializable {
             // Play notification sound
             playNotificationSound();
             
-            // Show completion dialog
+            // Show completion dialog with category info
+            String category = categoryModel.getSelectedCategory();
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Session Complete");
             alert.setHeaderText("Focus Session Finished!");
-            alert.setContentText("Great job! You've completed your focus session.");
+            alert.setContentText("Great job! You've completed your " + category + " session.");
             alert.showAndWait();
+            
+            // Log completion (for future database integration)
+            System.out.println("Session completed - Category: " + category + ", Duration: " + (timerModel.getTotalSeconds() / 60) + " minutes");
             
             // Reset button text
             btnPause.setText("Pause");
@@ -263,5 +388,27 @@ public class TimerController implements Initializable {
                 btn60.getStyleClass().add("preset-btn-selected");
                 break;
         }
+    }
+    
+    // Utility methods for alerts
+    private void showInfoAlert(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+    
+    private void showWarningAlert(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+    
+    // Getter for CategoryModel (for future use)
+    public CategoryModel getCategoryModel() {
+        return categoryModel;
     }
 }

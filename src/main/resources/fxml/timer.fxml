@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
@@ -8,16 +7,31 @@
 <AnchorPane xmlns="http://javafx.com/javafx/11.0.1" 
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.focustime.controller.TimerController">
-
+    
     <!-- Root VBox yang mengisi seluruh AnchorPane -->
     <VBox fx:id="rootVBox" spacing="20" alignment="CENTER" styleClass="timer-container"
           AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0"
           AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
-
         <padding>
             <Insets top="30" right="30" bottom="30" left="30" />
         </padding>
-
+        
+        <!-- Category Selection Section -->
+        <VBox alignment="CENTER" spacing="12" styleClass="category-section">
+            <Label text="Activity Category" styleClass="section-title">
+                <font>
+                    <Font name="System Bold" size="16.0" />
+                </font>
+            </Label>
+            <HBox alignment="CENTER" spacing="12" styleClass="category-controls">
+                <ComboBox fx:id="categoryComboBox" prefWidth="200" styleClass="category-combo" />
+                <Button fx:id="btnAddCategory" text="+" styleClass="category-btn add-btn" 
+                        onAction="#addCategory" />
+                <Button fx:id="btnRemoveCategory" text="−" styleClass="category-btn remove-btn" 
+                        onAction="#removeCategory" />
+            </HBox>
+        </VBox>
+        
         <!-- Timer Display -->
         <VBox alignment="CENTER" spacing="10" styleClass="timer-display">
             <Label fx:id="timeLabel" text="25:00" styleClass="time-label">
@@ -31,7 +45,7 @@
                 </font>
             </Label>
         </VBox>
-
+        
         <!-- Duration Selection -->
         <VBox alignment="CENTER" spacing="15" styleClass="duration-section">
             <Label text="Select Duration" styleClass="section-title">
@@ -39,13 +53,11 @@
                     <Font name="System Bold" size="16.0" />
                 </font>
             </Label>
-
             <HBox alignment="CENTER" spacing="10" styleClass="preset-buttons">
                 <Button fx:id="btn25" text="25 min" styleClass="preset-btn" onAction="#setDuration25" />
                 <Button fx:id="btn45" text="45 min" styleClass="preset-btn" onAction="#setDuration45" />
                 <Button fx:id="btn60" text="60 min" styleClass="preset-btn" onAction="#setDuration60" />
             </HBox>
-
             <VBox alignment="CENTER" spacing="10" styleClass="custom-duration">
                 <HBox alignment="CENTER" spacing="10">
                     <Label text="Custom Duration:" />
@@ -54,7 +66,6 @@
                     <Label text="minutes" />
                     <Button fx:id="btnCustom" text="Set" styleClass="custom-btn" onAction="#setCustomDuration" />
                 </HBox>
-
                 <HBox alignment="CENTER" spacing="10" styleClass="time-input-section">
                     <Label text="Or enter time (HH:MM:SS):" />
                     <TextField fx:id="timeInputField" promptText="00:25:00" prefWidth="100" 
@@ -63,7 +74,7 @@
                 </HBox>
             </VBox>
         </VBox>
-
+        
         <!-- Control Buttons -->
         <HBox alignment="CENTER" spacing="15" styleClass="control-buttons">
             <Button fx:id="btnStart" text="Start" styleClass="start-btn" onAction="#startTimer" />
@@ -73,10 +84,8 @@
                     disable="true" />
             <Button fx:id="btnReset" text="Reset" styleClass="reset-btn" onAction="#resetTimer" />
         </HBox>
-
+        
         <!-- Progress Bar -->
         <ProgressBar fx:id="progressBar" prefWidth="300" styleClass="timer-progress" />
-
     </VBox>
-
 </AnchorPane>
