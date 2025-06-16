@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.chart.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane xmlns="http://javafx.com/javafx/11.0.1"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.focustime.controller.HistoryController">
+
+    <!-- Header -->
+    <top>
+        <HBox spacing="15" alignment="CENTER_LEFT" padding="10">
+            <Button fx:id="btnBack" text="⬅ Kembali" onAction="#handleBack" />
+            <Label text="Histori Belajar" style="-fx-font-size: 20px; -fx-font-weight: bold;" />
+        </HBox>
+    </top>
+
+    <!-- Center: SplitPane Table & Chart -->
+    <center>
+        <SplitPane orientation="VERTICAL">
+            <!-- Table -->
+            <VBox spacing="10" padding="10">
+                <Label text="Detail Sesi Belajar" style="-fx-font-size: 16px; -fx-font-weight: bold;" />
+                <TableView fx:id="historyTable" prefHeight="200">
+                    <columns>
+                        <TableColumn fx:id="colCategory" text="Kategori" prefWidth="100" />
+                        <TableColumn fx:id="colDuration" text="Durasi (menit)" prefWidth="120" />
+                        <TableColumn fx:id="colTimestamp" text="Waktu" prefWidth="180" />
+                        <TableColumn fx:id="colNote" text="Catatan" prefWidth="250" />
+                    </columns>
+                </TableView>
+            </VBox>
+
+            <!-- Chart -->
+            <VBox spacing="10" padding="10">
+                <Label text="Grafik Total Durasi per Hari" style="-fx-font-size: 16px; -fx-font-weight: bold;" />
+                <BarChart fx:id="barChart" prefHeight="300" prefWidth="600">
+                    <xAxis>
+                        <CategoryAxis fx:id="xAxis" label="Tanggal" />
+                    </xAxis>
+                    <yAxis>
+                        <NumberAxis fx:id="yAxis" label="Durasi (menit)" />
+                    </yAxis>
+                </BarChart>
+            </VBox>
+        </SplitPane>
+    </center>
+</BorderPane>
