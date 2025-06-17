@@ -1,0 +1,5 @@
+# Created at 2025-06-17T14:37:38.154
+Boot Manifest-JAR contains absolute paths in classpath 'D:\Michael\uas\PBO\PBO\UAS-PBO_FocusTime_CoderTampan\target\test-classes'
+Hint: <argLine>-Djdk.net.URLClassPath.disableClassPathURLCheck=true</argLine>
+'other' has different root
+
