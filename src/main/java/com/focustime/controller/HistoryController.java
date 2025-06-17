@@ -118,7 +118,7 @@ public class HistoryController implements Initializable {
     @FXML
     private void handleBack() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/focustime/view/timer.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/timer.fxml"));
             Parent root = loader.load();
             Stage stage = (Stage) historyTable.getScene().getWindow();
             stage.setScene(new Scene(root));

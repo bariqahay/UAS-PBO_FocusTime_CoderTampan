@@ -2,7 +2,13 @@ package com.focustime.controller;
 
 import com.focustime.model.TimerModel;
 import com.focustime.model.CategoryModel;
-import com.focustime.database.DBConnection;
+import com.focustime.util.DBConnection;
+
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
+
 
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -14,6 +20,7 @@ import javafx.beans.binding.Bindings;
 import javafx.util.StringConverter;
 import com.focustime.model.SessionModel;
 
+import java.io.IOException;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -131,6 +138,24 @@ public class TimerController implements Initializable {
     }
 
     
+
+    @FXML
+    private void openHistoryView() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/history.fxml"));
+            Parent historyRoot = loader.load();
+
+            Stage historyStage = new Stage();
+            historyStage.setTitle("Histori Belajar");
+            historyStage.setScene(new Scene(historyRoot));
+            historyStage.show();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.err.println("Gagal membuka histori: " + e.getMessage());
+        }
+    }
+
 
     @FXML
     private void addCategory() {

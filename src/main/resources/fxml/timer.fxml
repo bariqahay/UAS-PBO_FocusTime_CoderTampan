@@ -57,7 +57,7 @@
                 </font>
             </Label>
             <HBox alignment="CENTER" spacing="10">
-                <Button fx:id="btnHistory" text="Lihat Histori" onAction="#openHistoryView" />
+                <Button fx:id="btnHistory" styleClass="custom-btn" text="Lihat Histori" onAction="#openHistoryView" />
             </HBox>
             <HBox alignment="CENTER" spacing="10" styleClass="preset-buttons">
                 <Button fx:id="btn25" text="25 min" styleClass="preset-btn" onAction="#setDuration25" />
