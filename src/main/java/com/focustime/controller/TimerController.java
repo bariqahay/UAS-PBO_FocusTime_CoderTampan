@@ -186,7 +186,8 @@ public class TimerController extends BaseController implements Initializable {
                 return;
             }
 
-            int minutes = (int) Math.floor(actualSeconds / 60.0);
+            int durationSeconds = timerModel.getTotalSeconds();
+            int minutes = Math.max(1, durationSeconds / 60);  // Pastiin minimal 1 menit buat lolos DB
             int seconds = actualSeconds % 60;
 
             // Optional, sum ke total tampilan tetap pakai menit
@@ -208,9 +209,10 @@ public class TimerController extends BaseController implements Initializable {
             // Catat ke database
             boolean saved = sessionSaver.save(CurrentUser.get().getId(), category, minutes, note);
             if (saved) {
+                if (sessionSaver instanceof SessionService s) {
+                    s.updateDailySummary(CurrentUser.get().getId(), minutes);
+                }
                 showInfo("Tersimpan", "Sesi telah dicatat.");
-            } else {
-                showWarning("Gagal", "Sesi gagal disimpan.");
             }
 
             btnPause.setText("Pause");
@@ -246,7 +248,7 @@ public class TimerController extends BaseController implements Initializable {
 
     @FXML
     private void openHistoryView() {
-        switchScene("history.fxml", "Riwayat Fokus", "history.css", timeLabel);
+        switchScene("history.fxml", "Riwayat Fokus", "history-styles.css", timeLabel);
     }
 
     @FXML
