@@ -66,17 +66,13 @@
             </HBox>
             <VBox alignment="CENTER" spacing="10" styleClass="custom-duration">
                 <HBox alignment="CENTER" spacing="10">
-                    <Label text="Custom Duration:" />
-                    <Spinner fx:id="customSpinner" min="1" max="180" initialValue="25"
-                             prefWidth="80" editable="true" />
-                    <Label text="minutes" />
-                    <Button fx:id="btnCustom" text="Set" styleClass="custom-btn" onAction="#setCustomDuration" />
-                </HBox>
-                <HBox alignment="CENTER" spacing="10" styleClass="time-input-section">
-                    <Label text="Or enter time (HH:MM:SS):" />
-                    <TextField fx:id="timeInputField" promptText="00:25:00" prefWidth="100"
-                               styleClass="time-input" onAction="#setTimeFromInput" />
-                    <Button fx:id="btnSetTime" text="Set Time" styleClass="custom-btn" onAction="#setTimeFromInput" />
+                    <Label text="Custom Time:" />
+                    <ComboBox fx:id="hourCombo" prefWidth="80" />
+                    <Label text=":" />
+                    <ComboBox fx:id="minuteCombo" prefWidth="80" />
+                    <Label text=":" />
+                    <ComboBox fx:id="secondCombo" prefWidth="80" />
+                    <Button text="Set Time" onAction="#setCustomTimeDropdown" styleClass="custom-btn"/>
                 </HBox>
             </VBox>
         </VBox>

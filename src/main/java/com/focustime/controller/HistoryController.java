@@ -120,8 +120,16 @@ public class HistoryController implements Initializable {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/timer.fxml"));
             Parent root = loader.load();
+            
+            Scene scene = new Scene(root);
+            
+            // PENTING: Load CSS untuk timer
+            String timerCss = getClass().getResource("/css/timer.css").toExternalForm();
+            scene.getStylesheets().add(timerCss);
+            
             Stage stage = (Stage) historyTable.getScene().getWindow();
-            stage.setScene(new Scene(root));
+            stage.setScene(scene);
+            
         } catch (IOException e) {
             System.err.println("Gagal kembali ke halaman utama: " + e.getMessage());
         }
