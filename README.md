@@ -1,5 +1,3 @@
----
-
 ## *1. Nama dan Deskripsi Singkat Focus Time*
 
 *FocusTime – Aplikasi Desktop Pencatat Sesi Belajar Berbasis Waktu*
