@@ -16,6 +16,15 @@
     -fx-border-radius: 12;
 }
 
+.btnHistory {
+    -fx-background-color: #007ACC;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-padding: 8px 16px;
+    -fx-background-radius: 8px;
+}
+
+
 .category-controls {
     -fx-spacing: 12;
     -fx-alignment: center;
