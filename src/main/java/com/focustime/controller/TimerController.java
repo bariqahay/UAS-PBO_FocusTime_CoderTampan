@@ -25,13 +25,14 @@ public class TimerController extends BaseController implements Initializable {
     @FXML private ProgressBar progressBar;
     @FXML private Label warningLabel;
 
-    private final TimerModel timerModel = new TimerModel();
     private CategoryModel categoryModel;
     private final SessionSaver sessionSaver = new SessionService();
     private final NotificationPlayer notifier = new NotificationPlayer("/audio/session_end.mp3");
+    private final TimerModel timerModel = TimerModelSingleton.getInstance(); // yang baru
 
     private final SimpleIntegerProperty todayMinutes = new SimpleIntegerProperty(0);
     private final SimpleIntegerProperty weekMinutes = new SimpleIntegerProperty(0);
+
 
 
     @Override
