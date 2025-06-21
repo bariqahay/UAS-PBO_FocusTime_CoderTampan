@@ -11,12 +11,12 @@ import java.time.LocalDateTime;
 public class SessionService implements SessionSaver {
 
     private Connection getConnection() throws SQLException {
-        return DBConnection.connect();  // pake PostgreSQL juga
+        return DBConnection.connect();  // PostgreSQL connection
     }
 
     @Override
     public boolean save(int userId, String category, int duration, String note) {
-        String sql = "INSERT INTO sessions (user_id, category, duration_minutes, note, created_at) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO study_sessions (user_id, category, duration_minutes, note, created_at) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
