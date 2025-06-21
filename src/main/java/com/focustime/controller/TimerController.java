@@ -3,6 +3,7 @@ package com.focustime.controller;
 import com.focustime.model.*;
 import com.focustime.service.*;
 import com.focustime.session.CurrentUser;
+import com.focustime.util.DBConnection;
 import com.focustime.util.NotificationPlayer;
 
 import javafx.application.Platform;
@@ -52,11 +53,13 @@ public class TimerController extends BaseController implements Initializable {
             categoryModel.setSelectedCategory(newVal);
         });
 
+        loadSummaryMinutes(); // ⬅ tambahin ini
         bindUI();
         setupTimerListener();
         initDurationCombos();
         setupButtonStateListeners();
     }
+
 
     private void initDurationCombos() {
         for (int i = 0; i <= 12; i++) hourCombo.getItems().add(i);
@@ -179,24 +182,63 @@ public class TimerController extends BaseController implements Initializable {
         }
     }
 
+        private void loadSummaryMinutes() {
+        int today = 0;
+        int week = 0;
+
+        String sql = """
+            SELECT date, total_minutes 
+            FROM session_summary 
+            WHERE user_id = ? AND date >= CURRENT_DATE - INTERVAL '6 days'
+        """;
+
+        try (var conn = DBConnection.connect();
+            var stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, CurrentUser.get().getId());
+            var rs = stmt.executeQuery();
+
+            var todayDate = java.time.LocalDate.now();
+            var startOfWeek = todayDate.with(java.time.DayOfWeek.MONDAY);
+
+            while (rs.next()) {
+                var date = rs.getDate("date").toLocalDate();
+                int minutes = rs.getInt("total_minutes");
+
+                if (date.equals(todayDate)) today += minutes;
+                if (!date.isBefore(startOfWeek)) week += minutes;
+            }
+
+            todayMinutes.set(today);
+            weekMinutes.set(week);
+
+        } catch (Exception e) {
+            System.err.println("Gagal load summary: " + e.getMessage());
+        }
+    }
+
     private void onSessionFinished() {
         Platform.runLater(() -> {
             notifier.play();
 
             String category = categoryModel.getSelectedCategory();
-            int totalSeconds = timerModel.getTotalSeconds();
-            int actualSeconds = totalSeconds;
-
             if (category == null || category.isBlank()) {
                 showWarning("Kategori kosong", "Silakan pilih kategori.");
                 return;
             }
 
             int durationSeconds = timerModel.getTotalSeconds();
-            int minutes = Math.max(1, durationSeconds / 60);  // Pastiin minimal 1 menit buat lolos DB
+            int remainingSeconds = timerModel.getRemainingSeconds();
+            int actualSeconds = durationSeconds - remainingSeconds;
+
+            if (actualSeconds < 45) {
+                showWarning("Terlalu Singkat", "Durasi sesi < 45 detik, tidak disimpan.");
+                return;
+            }
+
+            int minutes = Math.max(1, actualSeconds / 60);  // Pastiin minimal 1 menit ke DB
             int seconds = actualSeconds % 60;
 
-            // Optional, sum ke total tampilan tetap pakai menit
             todayMinutes.set(todayMinutes.get() + minutes);
             weekMinutes.set(weekMinutes.get() + minutes);
 
@@ -212,18 +254,16 @@ public class TimerController extends BaseController implements Initializable {
             Optional<String> result = dialog.showAndWait();
             String note = result.map(String::trim).orElse("");
 
-            // Catat ke database
             boolean saved = sessionSaver.save(CurrentUser.get().getId(), category, minutes, note);
-            if (saved) {
-                if (sessionSaver instanceof SessionService s) {
-                    s.updateDailySummary(CurrentUser.get().getId(), minutes);
-                }
+            if (saved && sessionSaver instanceof SessionService s) {
+                s.updateDailySummary(CurrentUser.get().getId(), minutes);
                 showInfo("Tersimpan", "Sesi telah dicatat.");
             }
 
             btnPause.setText("Pause");
         });
     }
+
 
 
     // Timer Controls
