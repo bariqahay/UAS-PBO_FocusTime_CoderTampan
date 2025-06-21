@@ -1,20 +1,28 @@
 package com.focustime.controller;
 
 import com.focustime.model.UserModel;
+import com.focustime.service.Authenticator;
 import com.focustime.service.AuthService;
 import com.focustime.session.CurrentUser;
-import com.focustime.util.SceneManager;
-
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
-import javafx.scene.layout.Region;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
 
-public class LoginController {
+public class LoginController extends BaseController {
 
     @FXML private TextField usernameField;
     @FXML private PasswordField passwordField;
 
-    private final AuthService authService = new AuthService();
+    private Authenticator authenticator;
+
+    public LoginController() {
+        this.authenticator = new AuthService(); // default
+    }
+
+    // Supaya bisa disuntik mock service untuk testing
+    public void setAuthenticator(Authenticator authenticator) {
+        this.authenticator = authenticator;
+    }
 
     @FXML
     private void handleLogin() {
@@ -22,33 +30,22 @@ public class LoginController {
         String password = passwordField.getText().trim();
 
         if (username.isEmpty() || password.isEmpty()) {
-            showAlert("Error", "Username dan password tidak boleh kosong");
+            showError("Login Gagal", "Username dan password tidak boleh kosong");
             return;
         }
 
-        AuthService authService = new AuthService();
-        UserModel user = authService.loginUser(username, password);
+        UserModel user = authenticator.login(username, password);
 
         if (user != null) {
-            // Simpan user login kalau perlu
-            // Session.setCurrentUser(user);
             CurrentUser.login(user);
-            SceneManager.switchScene("timer.fxml", "Focus Timer", "timer.css", usernameField);
+            switchScene("timer.fxml", "Focus Timer", "timer.css", usernameField);
         } else {
-            showAlert("Login Gagal", "Username atau password salah");
+            showError("Login Gagal", "Username atau password salah");
         }
     }
 
     @FXML
     private void goToSignup() {
-        SceneManager.switchScene("signup.fxml", "Daftar Akun", "signup.css", usernameField);
-    }
-
-    private void showAlert(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
+        switchScene("signup.fxml", "Daftar Akun", "signup.css", usernameField);
     }
 }

@@ -16,6 +16,9 @@
             <Insets top="30" right="30" bottom="30" left="30" />
         </padding>
 
+        <HBox alignment="TOP_RIGHT">
+            <Button fx:id="btnLogout" text="Logout" onAction="#logout" styleClass="logout-btn" />
+        </HBox>
         <!-- Category Selection Section -->
         <VBox alignment="CENTER" spacing="12" styleClass="category-section">
             <Label text="Activity Category" styleClass="section-title">

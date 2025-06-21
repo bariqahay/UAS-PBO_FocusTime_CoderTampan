@@ -89,12 +89,19 @@ public class CategoryModel {
 
     public boolean removeCategory(String category) {
         if (categories.size() <= 1) return false;
-        if (category.equals(selectedCategory.get())) return false;
 
         boolean removed = categories.remove(category);
-
         if (removed) {
             deleteCategoryFromDB(category);
+
+            // Kalau yang dihapus adalah yang terpilih
+            if (category.equals(selectedCategory.get())) {
+                if (!categories.isEmpty()) {
+                    selectedCategory.set(categories.get(0)); // pindah ke kategori pertama
+                } else {
+                    selectedCategory.set(null);
+                }
+            }
         }
 
         return removed;

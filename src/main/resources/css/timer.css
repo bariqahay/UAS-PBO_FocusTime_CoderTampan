@@ -1,3 +1,4 @@
+//timer.css
 /* Dark Theme Timer Container */
 .timer-container {
     -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #1e3c72, #2a5298);
@@ -15,6 +16,20 @@
     -fx-border-width: 1;
     -fx-border-radius: 12;
 }
+
+.logout-btn {
+    -fx-font-size: 11px;
+    -fx-background-color: transparent;
+    -fx-text-fill: #888;
+    -fx-padding: 4 8 4 8;
+    -fx-border-radius: 4;
+    -fx-cursor: hand;
+}
+.logout-btn:hover {
+    -fx-text-fill: #333;
+    -fx-underline: true;
+}
+
 
 .btnHistory {
     -fx-background-color: #007ACC;
