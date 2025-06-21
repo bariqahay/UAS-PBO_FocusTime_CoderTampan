@@ -72,6 +72,7 @@
                     <ComboBox fx:id="secondCombo" prefWidth="60" />
                     <Button fx:id="btnSetCustomTime" text="Set" styleClass="custom-btn" onAction="#setCustomTimeDropdown" />
                 </HBox>
+                <Label fx:id="warningLabel" text="Minimal 1 menit ya bro!" style="-fx-text-fill: red;" visible="false"/>
             </VBox>
         </VBox>
 
@@ -90,6 +91,7 @@
                     disable="true" />
             <Button fx:id="btnReset" text="Reset" styleClass="reset-btn" onAction="#resetTimer" />
         </HBox>
+        
 
         <!-- Progress Bar -->
         <ProgressBar fx:id="progressBar" prefWidth="300" styleClass="timer-progress" />

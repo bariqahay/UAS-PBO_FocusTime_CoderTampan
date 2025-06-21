@@ -23,6 +23,7 @@ public class TimerController extends BaseController implements Initializable {
     @FXML private ComboBox<String> categoryComboBox;
     @FXML private ComboBox<Integer> hourCombo, minuteCombo, secondCombo;
     @FXML private ProgressBar progressBar;
+    @FXML private Label warningLabel;
 
     private final TimerModel timerModel = new TimerModel();
     private CategoryModel categoryModel;
@@ -31,6 +32,7 @@ public class TimerController extends BaseController implements Initializable {
 
     private final SimpleIntegerProperty todayMinutes = new SimpleIntegerProperty(0);
     private final SimpleIntegerProperty weekMinutes = new SimpleIntegerProperty(0);
+
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -110,6 +112,7 @@ public class TimerController extends BaseController implements Initializable {
     @FXML private void setDuration45() { timerModel.setDuration(45); }
     @FXML private void setDuration60() { timerModel.setDuration(60); }
 
+
     @FXML
     private void setCustomTimeDropdown() {
         int h = hourCombo.getValue() != null ? hourCombo.getValue() : 0;
@@ -117,11 +120,13 @@ public class TimerController extends BaseController implements Initializable {
         int s = secondCombo.getValue() != null ? secondCombo.getValue() : 0;
 
         int totalSeconds = h * 3600 + m * 60 + s;
-        if (totalSeconds <= 0) {
-            showWarning("Durasi gak valid", "Masukin durasi lebih dari 0 detik.");
+        if (totalSeconds < 60) {
+            warningLabel.setText("Minimal 1 menit ya bro!");
+            warningLabel.setVisible(true);
             return;
         }
 
+        warningLabel.setVisible(false);
         timerModel.setDurationSeconds(totalSeconds);
     }
 
