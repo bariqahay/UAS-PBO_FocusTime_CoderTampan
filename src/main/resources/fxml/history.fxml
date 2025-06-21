@@ -37,7 +37,16 @@
                         <TableColumn fx:id="colNote" text="Catatan" prefWidth="250" />
                     </columns>
                 </TableView>
+                
+                <!-- Tambahan ini -->
+                <Label fx:id="labelTodayTotal" text="Total Hari Ini: 0 menit" styleClass="label-summary" />
+                <Label fx:id="labelWeekTotal" text="Total Minggu Ini: 0 menit" styleClass="label-summary" />
             </VBox>
+
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Button fx:id="btnDelete" text="🗑 Hapus Terpilih" onAction="#handleDelete" styleClass="button-danger"/>
+            </HBox>
+
 
             <!-- Chart Section -->
             <VBox spacing="10">

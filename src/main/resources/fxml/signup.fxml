@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+<AnchorPane xmlns:fx="http://javafx.com/fxml" fx:controller="com.focustime.controller.RegisterController"
+            styleClass="signup-root">
+    <children>
+        <VBox styleClass="signup-container" layoutX="100" layoutY="100" 
+              AnchorPane.leftAnchor="50" AnchorPane.rightAnchor="50" 
+              AnchorPane.topAnchor="30" AnchorPane.bottomAnchor="30">
+            
+            <VBox styleClass="signup-content">
+                <Label text="Daftar Akun Baru" styleClass="signup-title" />
+                
+                <VBox styleClass="signup-form-section">
+                    <VBox styleClass="signup-input-group">
+                        <TextField fx:id="usernameField" promptText="Username" 
+                                   styleClass="signup-username" />
+                                   
+                        <PasswordField fx:id="passwordField" promptText="Password" 
+                                       styleClass="signup-password" />
+                                       
+                        <!-- Optional: Password strength indicator -->
+                        <HBox styleClass="password-strength" fx:id="passwordStrengthBox" visible="false">
+                            <ProgressBar fx:id="strengthBar" styleClass="strength-bar" prefWidth="150" />
+                            <Label fx:id="strengthText" styleClass="strength-text" text="Lemah" />
+                        </HBox>
+                                       
+                        <PasswordField fx:id="confirmPasswordField" promptText="Konfirmasi Password" 
+                                       styleClass="signup-confirm-password" />
+                                       
+                        <!-- Optional: Validation messages -->
+                        <Label fx:id="validationMessage" styleClass="validation-label validation-info" 
+                               text="" visible="false" />
+                    </VBox>
+                    
+                    <VBox styleClass="signup-button-group">
+                        <Button text="Daftar" onAction="#handleSignup" styleClass="signup-btn" />
+                        <Hyperlink text="Sudah punya akun? Login" 
+                                   onAction="#goToLogin" styleClass="login-link" />
+                    </VBox>
+                </VBox>
+            </VBox>
+        </VBox>
+    </children>
+</AnchorPane>

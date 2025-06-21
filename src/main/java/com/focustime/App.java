@@ -9,55 +9,46 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 public class App extends Application {
-    
 
     @Override
     public void start(Stage stage) {
         try {
-            // Load FXML file
-            System.out.println("FXML path: " + getClass().getResource("/fxml/timer.fxml"));
-
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/timer.fxml"));
+            // Load login.fxml as initial screen
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/login.fxml"));
             Parent root = loader.load();
 
-            // Get VBox from fx:id
-            VBox rootVBox = (VBox) loader.getNamespace().get("rootVBox");
-            if (rootVBox != null) {
-                rootVBox.prefWidthProperty().bind(stage.widthProperty());
-                rootVBox.prefHeightProperty().bind(stage.heightProperty());
-            }
-
-            // Create scene and add CSS
             Scene scene = new Scene(root);
-            scene.getStylesheets().add(getClass().getResource("/css/timer.css").toExternalForm());
+            scene.getStylesheets().add(getClass().getResource("/css/login.css").toExternalForm());
 
-            // Setup stage with responsive sizing
-            stage.setTitle("FocusTime - Focus Timer");
+            stage.setTitle("FocusTime - Login");
             stage.setScene(scene);
-            stage.centerOnScreen();
+
+            // ✅ Biar window langsung maksimal tapi masih ada border & bisa di-resize
+            stage.setResizable(true);
+            stage.setMaximized(true);
+
             stage.show();
 
         } catch (Exception e) {
+            System.err.println("❌ Failed to load login UI: " + e.getMessage());
             e.printStackTrace();
-            System.err.println("Error loading Timer UI: " + e.getMessage());
         }
     }
 
-    
+
     public static void main(String[] args) {
-        // Test database connection
+        // Test DB connection before launching app
         try (Connection conn = DBConnection.connect()) {
-            System.out.println("✓ Connected to database successfully!");
+            System.out.println("✅ Connected to database successfully!");
         } catch (SQLException e) {
-            System.err.println("✗ Database connection failed: " + e.getMessage());
+            System.err.println("❌ Database connection failed: " + e.getMessage());
             e.printStackTrace();
         }
-        
-        // Launch JavaFX application
+
+        // Launch JavaFX app
         launch(args);
     }
 }

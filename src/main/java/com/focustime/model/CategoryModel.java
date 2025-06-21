@@ -1,132 +1,139 @@
 package com.focustime.model;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
+import com.focustime.util.DBConnection;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
+import java.sql.*;
+import java.util.Arrays;
+import java.util.List;
+
 public class CategoryModel {
-    // Default preset categories
+
+    private final int userId;
+
     private static final List<String> DEFAULT_CATEGORIES = Arrays.asList(
         "Kuliah", "Tugas", "Belajar Mandiri"
     );
-    
-    private ObservableList<String> categories;
-    private StringProperty selectedCategory;
-    
-    public CategoryModel() {
-        // Initialize with default categories
+
+    private final ObservableList<String> categories;
+    private final StringProperty selectedCategory;
+
+    public CategoryModel(int userId) {
+        this.userId = userId;
         this.categories = FXCollections.observableArrayList();
-        this.categories.addAll(DEFAULT_CATEGORIES);
-        
-        // Set default selected category
-        this.selectedCategory = new SimpleStringProperty(DEFAULT_CATEGORIES.get(0));
+        this.selectedCategory = new SimpleStringProperty();
+
+        loadCategoriesFromDB();
     }
-    
-    /**
-     * Add new category if it doesn't exist
-     */
-    public boolean addCategory(String category) {
-        if (category == null || category.trim().isEmpty()) {
-            return false;
-        }
-        
-        String trimmedCategory = category.trim();
-        
-        // Check if category already exists (case insensitive)
-        for (String existing : categories) {
-            if (existing.equalsIgnoreCase(trimmedCategory)) {
-                return false; // Already exists
+
+    private void loadCategoriesFromDB() {
+        String sql = "SELECT name FROM user_categories WHERE user_id = ? ORDER BY id";
+
+        try (Connection conn = DBConnection.connect();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, userId);
+            ResultSet rs = stmt.executeQuery();
+
+            categories.clear();
+            while (rs.next()) {
+                categories.add(rs.getString("name"));
             }
+
+            if (!categories.isEmpty()) {
+                selectedCategory.set(categories.get(0));
+            } else {
+                categories.addAll(DEFAULT_CATEGORIES);
+                selectedCategory.set(DEFAULT_CATEGORIES.get(0));
+                for (String cat : DEFAULT_CATEGORIES) {
+                    saveCategoryToDB(cat);
+                }
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Gagal load kategori: " + e.getMessage());
         }
-        
-        categories.add(trimmedCategory);
+    }
+
+    private void saveCategoryToDB(String name) {
+        String sql = "INSERT INTO user_categories (name, user_id) VALUES (?, ?) ON CONFLICT DO NOTHING";
+
+        try (Connection conn = DBConnection.connect();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, name);
+            stmt.setInt(2, userId);
+            stmt.executeUpdate();
+
+        } catch (SQLException e) {
+            System.err.println("Gagal simpan kategori: " + e.getMessage());
+        }
+    }
+
+    public boolean addCategory(String category) {
+        if (category == null || category.trim().isEmpty()) return false;
+
+        String trimmed = category.trim();
+
+        for (String existing : categories) {
+            if (existing.equalsIgnoreCase(trimmed)) return false;
+        }
+
+        categories.add(trimmed);
+        saveCategoryToDB(trimmed);
         return true;
     }
-    
-    /**
-     * Remove category (can't remove if it's the only one or currently selected)
-     */
+
     public boolean removeCategory(String category) {
-        if (categories.size() <= 1) {
-            return false; // Can't remove if it's the only category
+        if (categories.size() <= 1) return false;
+        if (category.equals(selectedCategory.get())) return false;
+
+        boolean removed = categories.remove(category);
+
+        if (removed) {
+            deleteCategoryFromDB(category);
         }
-        
-        if (category.equals(selectedCategory.get())) {
-            return false; // Can't remove currently selected category
-        }
-        
-        return categories.remove(category);
+
+        return removed;
     }
-    
-    /**
-     * Get all categories as observable list
-     */
+
+    private void deleteCategoryFromDB(String name) {
+        String sql = "DELETE FROM user_categories WHERE user_id = ? AND name = ?";
+
+        try (Connection conn = DBConnection.connect();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, userId);
+            stmt.setString(2, name);
+            stmt.executeUpdate();
+
+        } catch (SQLException e) {
+            System.err.println("Gagal hapus kategori: " + e.getMessage());
+        }
+    }
+
     public ObservableList<String> getCategories() {
         return categories;
     }
-    
-    /**
-     * Set selected category
-     */
+
     public void setSelectedCategory(String category) {
         if (categories.contains(category)) {
             selectedCategory.set(category);
         }
     }
-    
-    /**
-     * Get current selected category
-     */
+
     public String getSelectedCategory() {
         return selectedCategory.get();
     }
-    
-    /**
-     * Get selected category property for binding
-     */
+
     public StringProperty selectedCategoryProperty() {
         return selectedCategory;
     }
-    
-    /**
-     * Reset to default categories
-     */
-    public void resetToDefaults() {
-        categories.clear();
-        categories.addAll(DEFAULT_CATEGORIES);
-        selectedCategory.set(DEFAULT_CATEGORIES.get(0));
-    }
-    
-    /**
-     * Check if category exists
-     */
+
     public boolean hasCategory(String category) {
         return categories.contains(category);
-    }
-    
-    /**
-     * Get categories as regular list (for saving to file/db later)
-     */
-    public List<String> getCategoriesAsList() {
-        return new ArrayList<>(categories);
-    }
-    
-    /**
-     * Load categories from list (from file/db later)
-     */
-    public void loadCategories(List<String> categoriesList) {
-        categories.clear();
-        if (categoriesList != null && !categoriesList.isEmpty()) {
-            categories.addAll(categoriesList);
-            selectedCategory.set(categoriesList.get(0));
-        } else {
-            // Fallback to defaults
-            resetToDefaults();
-        }
     }
 }

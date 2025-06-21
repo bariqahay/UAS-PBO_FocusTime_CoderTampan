@@ -1,0 +1,9 @@
+.dialog-pane {
+    -fx-background-color: #f9f9f9;
+    -fx-font-size: 14px;
+    -fx-padding: 20;
+}
+
+.label {
+    -fx-font-weight: bold;
+}

@@ -2,5 +2,6 @@
   "java.project.sourcePaths": ["src/main/java"],
   "java.project.referencedLibraries": [
     "javafx-sdk-21.0.7/lib/*.jar"
-  ]
+  ],
+  "java.configuration.updateBuildConfiguration": "interactive"
 }

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<AnchorPane xmlns:fx="http://javafx.com/fxml" fx:controller="com.focustime.controller.LoginController" 
+            styleClass="login-root">
+    <children>
+        <VBox styleClass="login-container" layoutX="100" layoutY="100" 
+              AnchorPane.leftAnchor="50" AnchorPane.rightAnchor="50" 
+              AnchorPane.topAnchor="50" AnchorPane.bottomAnchor="50">
+            
+            <VBox styleClass="login-content">
+                <Label text="Login ke FocusTime" styleClass="login-title" />
+                
+                <VBox styleClass="form-section">
+                    <VBox styleClass="input-group">
+                        <TextField fx:id="usernameField" promptText="Username" 
+                                   styleClass="username-field" />
+                        <PasswordField fx:id="passwordField" promptText="Password" 
+                                       styleClass="password-field" />
+                    </VBox>
+                    
+                    <VBox styleClass="button-group">
+                        <Button text="Login" onAction="#handleLogin" styleClass="login-btn" />
+                        <Hyperlink text="Belum punya akun? Daftar di sini" 
+                                   onAction="#goToSignup" styleClass="signup-link" />
+                    </VBox>
+                </VBox>
+            </VBox>
+        </VBox>
+    </children>
+</AnchorPane>
